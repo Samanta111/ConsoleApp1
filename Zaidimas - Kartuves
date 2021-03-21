@@ -1,0 +1,526 @@
+using System;
+using System.Collections.Generic;
+
+
+namespace Samanta_9uzduotis
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            Kartuves();
+
+
+            Console.WriteLine();
+            Console.WriteLine("Press any key to exit.");
+            Console.ReadKey();
+        }
+
+        
+        static void Kartuves()
+        {
+            List<string> vardai = new List<string> { "Samanta", "Marijus", "Daiva", "Greta", "Rasita", "Raminta", "Nojus", "Rasa", "Martyna", "Martynas" };
+            List<string> lietuvosMiestai = new List<string> { "Alytus", "Vilnius", "Kaunas", "Palanga", "Nida", "Druskininkai", "Plunge", "Birzai", "Marijampole", "Klaipeda" };
+            List<string> valstybes = new List<string> { "Lietuva", "Vokietija", "Airija", "Anglija", "Danija", "Egiptas", "Italija", "Rusija", "Turkija", "Graikija" };
+            List<string> lietuvosEzerai = new List<string> { "Purvis", "Dauniskis", "Alausis", "Tauragnas", "Obelija", "Asveja", "Metelys", "Giedavardys", "Dviragis", "Dusia" };
+
+            bool letsGo = true;
+
+            while (letsGo)
+            {
+                List<char> spetosRaides = new List<char>();
+                List<string> spetiZodziai = new List<string>();
+
+                var random = new Random();
+
+                var pasirinkimas = ZaidejasRenkasiTema(out string Tema);
+
+                var spejamasZodis = ZodzioParinkimas(pasirinkimas, vardai, lietuvosMiestai, valstybes, lietuvosEzerai, random);
+
+                while (spejamasZodis == "-1")
+                {
+                    Console.WriteLine($"Zodziu grupeje {Tema} spejote visus zodzius. Pasirinkite kita zodziu grupe");
+
+                    pasirinkimas = ZaidejasRenkasiTema(out Tema);
+                    spejamasZodis = ZodzioParinkimas(pasirinkimas, vardai, lietuvosMiestai, valstybes, lietuvosEzerai, random);
+                }
+
+                char[] zodzioMasyvas = TuscioZodzioMasyvas(spejamasZodis.Length);
+
+                bool spejimaiBaigti = false;
+                int gyvybes = 0;
+
+                while (!spejimaiBaigti)
+                {
+                    KartuviuPaveiksliukas(gyvybes);
+
+                    Console.WriteLine($"Spejamas zodis is zodziu temos: {Tema}.");
+                    IsvestiSimboliuMasyva(zodzioMasyvas);
+
+                    IsvestiSpetasRaides(spetosRaides);
+                    IsvestiSpetusZodzius(spetiZodziai);
+
+                    Console.WriteLine("Spekite raide arba visa zodi:");
+                    var spejimas = Console.ReadLine().ToUpper();
+
+                    while (!(ArTeisingasSpejimas(spejimas) && PasikartojantysSpejimai(spejimas, spetosRaides, spetiZodziai)))
+                    {
+                        Console.WriteLine("Spekite raide arba visa zodi:");
+                        spejimas = Console.ReadLine().ToUpper();
+                    }
+
+                    JauBuveSpejimai(spejimas, spetosRaides, spetiZodziai);
+
+                    if (SpejamasVisasZodis(spejimas))
+                    {
+                        if (!SpetiZodi(spejimas, spejamasZodis, zodzioMasyvas))
+                        {
+                            gyvybes = 7;
+                        }
+                    }
+                    else if (!SpetiRaide(spejimas[0], spejamasZodis, zodzioMasyvas))
+                    {
+                        gyvybes++;
+                    }
+
+                    if (gyvybes == 7)
+                    {
+                        Console.Clear();
+                        KartuviuPaveiksliukas(gyvybes);
+                        IsvestiSimboliuMasyva(zodzioMasyvas);
+                        IsvestiSpetasRaides(spetosRaides);
+                        IsvestiSpetusZodzius(spetiZodziai);
+
+                        Console.WriteLine();
+                        Console.WriteLine($"Deja, bet jus pralaimejote zaidima, tai buvo zodis {spejamasZodis} bandykite zaisti dar karta!");
+                        spejimaiBaigti = true;
+                    }
+                    else if (ZaidejasLaimejo(zodzioMasyvas))
+                    {
+                        Console.Clear();
+                        KartuviuPaveiksliukas(gyvybes);
+                        IsvestiSimboliuMasyva(zodzioMasyvas);
+                        IsvestiSpetasRaides(spetosRaides);
+                        IsvestiSpetusZodzius(spetiZodziai);
+                        Console.WriteLine();
+                        Console.WriteLine("Sveikiname, Jus laimejote zaidima!");
+                        spejimaiBaigti = true;
+                    }
+                }
+
+                letsGo = ZaistiDarKarta();
+
+                Console.Clear();
+            }
+        }
+
+        static void KartuviuPaveiksliukas(int kartuves)
+        {
+            switch (kartuves)
+            {
+                case 0:
+                    Console.WriteLine(" ----------------| ");
+                    Console.WriteLine(" | ");
+                    Console.WriteLine(" | ");
+                    Console.WriteLine(" | ");
+                    Console.WriteLine(" | ");
+                    Console.WriteLine(" | ");
+                    Console.WriteLine(" | ");
+                    Console.WriteLine(" | ");
+                    Console.WriteLine(" ----------");
+                    break;
+                case 1:
+                    Console.WriteLine(" ----------------| ");
+                    Console.WriteLine(" |               o");
+                    Console.WriteLine(" | ");
+                    Console.WriteLine(" | ");
+                    Console.WriteLine(" | ");
+                    Console.WriteLine(" | ");
+                    Console.WriteLine(" | ");
+                    Console.WriteLine(" | ");
+                    Console.WriteLine(" ----------");
+                    break;
+                case 2:
+                    Console.WriteLine(" ----------------| ");
+                    Console.WriteLine(" |               o ");
+                    Console.WriteLine(" |               | ");
+                    Console.WriteLine(" | ");
+                    Console.WriteLine(" | ");
+                    Console.WriteLine(" | ");
+                    Console.WriteLine(" | ");
+                    Console.WriteLine(" | ");
+                    Console.WriteLine(" ----------");
+                    break;
+                case 3:
+                    Console.WriteLine(" ----------------| ");
+                    Console.WriteLine(" |               o ");
+                    Console.WriteLine(" |               | ");
+                    Console.WriteLine(" |               O ");
+                    Console.WriteLine(" | ");
+                    Console.WriteLine(" | ");
+                    Console.WriteLine(" | ");
+                    Console.WriteLine(" | ");
+                    Console.WriteLine(" ----------");
+                    break;
+                case 4:
+                    Console.WriteLine(" ----------------| ");
+                    Console.WriteLine(@" |               o ");
+                    Console.WriteLine(@" |              \| ");
+                    Console.WriteLine(" |               O ");
+                    Console.WriteLine(" | ");
+                    Console.WriteLine(" | ");
+                    Console.WriteLine(" | ");
+                    Console.WriteLine(" | ");
+                    Console.WriteLine(" ----------");
+                    break;
+                case 5:
+                    Console.WriteLine(" ----------------| ");
+                    Console.WriteLine(" |               o ");
+                    Console.WriteLine(@" |              \|/ ");
+                    Console.WriteLine(" |               O ");
+                    Console.WriteLine(" | ");
+                    Console.WriteLine(" | ");
+                    Console.WriteLine(" | ");
+                    Console.WriteLine(" | ");
+                    Console.WriteLine(" ----------");
+                    break;
+                case 6:
+                    Console.WriteLine(" ----------------| ");
+                    Console.WriteLine(" |               o ");
+                    Console.WriteLine(@" |              \|/ ");
+                    Console.WriteLine(" |               O ");
+                    Console.WriteLine(@" |              /  ");
+                    Console.WriteLine(" | ");
+                    Console.WriteLine(" | ");
+                    Console.WriteLine(" | ");
+                    Console.WriteLine(" ----------");
+                    break;
+                case 7:
+                    Console.WriteLine(" ----------------| ");
+                    Console.WriteLine(" |               o ");
+                    Console.WriteLine(@" |              \|/ ");
+                    Console.WriteLine(" |               O ");
+                    Console.WriteLine(@" |              / \ ");
+                    Console.WriteLine(" | ");
+                    Console.WriteLine(" | ");
+                    Console.WriteLine(" | ");
+                    Console.WriteLine(" ----------");
+                    break;
+                default:
+                    break;
+            }
+        }
+
+
+        static int ZaidejasRenkasiTema(out string tema)
+        {
+            var temosPasirinkimas = NuskaitytiZaidejoPasirinkimoNumeri();
+
+            switch (temosPasirinkimas)
+            {
+                case 1:
+                    tema = "Vardai";
+                    break;
+                case 2:
+                    tema = "Lietuvos miestai";
+                    break;
+                case 3:
+                    tema = "Valstybes";
+                    break;
+                case 4:
+                    tema = "Lietuvos ezerai";
+                    break;
+                default:
+                    tema = "Deja, bet tokios temos tarp pasirinkimu nera, rinkites dar karta";
+                    break;
+            }
+
+            return temosPasirinkimas;
+        }
+
+        static int NuskaitytiZaidejoPasirinkimoNumeri()
+        {
+            int pasirinkimoNumeris;
+
+            Console.WriteLine("-----------------KARTUVIU ZAIDIMAS-----------------");
+
+            Console.WriteLine("Pasirinkite, is kurios temos norite speti zodi:\nVARDAI - spauskite 1\nLIETUVOS MIESTAI - spauskite 2\nVALSTYBES - spauskite 3\nLIETUVOS EZERAI - spauskite 4");
+
+
+            while (!(int.TryParse(Console.ReadLine(), out pasirinkimoNumeris) && pasirinkimoNumeris >= 1 && pasirinkimoNumeris <= 4))
+            {
+                Console.Clear();
+                Console.WriteLine("Deja, bet tokios temos tarp pasirinkimu nera, rinkites tema is nurodytu apacioje");
+                Console.WriteLine("           | ");
+                Console.WriteLine("           | ");
+                Console.WriteLine("           V ");
+                Console.WriteLine();
+                Console.WriteLine("Pasirinkite, is kurios temos norite speti zodi:\nVARDAI - spauskite 1\nLIETUVOS MIESTAI - spauskite 2\nVALSTYBES - spauskite 3\nLIETUVOS EZERAI - spauskite 4");
+            }
+
+            return pasirinkimoNumeris;
+        }
+
+        static string ZodzioParinkimas(int pasirinkimas, List<string> vardai, List<string> lietuvosMiestai, List<string> valstybes, List<string> lietuvosEzerai, Random random)
+        {
+            string spejamasZodis = string.Empty;
+
+            switch (pasirinkimas)
+            {
+                case 1:
+                    if (vardai.Count == 0)
+                    {
+                        spejamasZodis = "-1";
+                    }
+                    else
+                    {
+                        spejamasZodis = vardai[random.Next(0, vardai.Count)];
+                        vardai.Remove(spejamasZodis);
+                    }
+
+                    break;
+                case 2:
+                    if (lietuvosMiestai.Count == 0)
+                    {
+                        spejamasZodis = "-1";
+                    }
+                    else
+                    {
+                        spejamasZodis = lietuvosMiestai[random.Next(0, lietuvosMiestai.Count)];
+                        lietuvosMiestai.Remove(spejamasZodis);
+                    }
+
+                    break;
+                case 3:
+                    if (valstybes.Count == 0)
+                    {
+                        spejamasZodis = "-1";
+                    }
+                    else
+                    {
+                        spejamasZodis = valstybes[random.Next(0, valstybes.Count)];
+                        valstybes.Remove(spejamasZodis);
+                    }
+
+                    break;
+                case 4:
+                    if (lietuvosEzerai.Count == 0)
+                    {
+                        spejamasZodis = "-1";
+                    }
+                    else
+                    {
+                        spejamasZodis = lietuvosEzerai[random.Next(0, lietuvosEzerai.Count)];
+                        lietuvosEzerai.Remove(spejamasZodis);
+                    }
+
+                    break;
+                default:
+                    break;
+            }
+
+            return spejamasZodis;
+        }
+
+        static char[] TuscioZodzioMasyvas(int masyvoDydis)
+        {
+            char[] zodzioMasyvas = new char[masyvoDydis];
+
+            for (int i = 0; i < zodzioMasyvas.Length; i++)
+            {
+                zodzioMasyvas[i] = '_';
+            }
+
+            return zodzioMasyvas;
+        }
+
+        static bool SpejamasVisasZodis(string raidesSpejimas)
+        {
+            return raidesSpejimas.Length > 1;
+        }
+
+        static bool SpetiRaide(char spejamaRaide, string zodis, char[] zodzioMasyvas)
+        {
+            bool atspejo = false;
+
+            for (var i = 0; i < zodis.Length; i++)
+            {
+                char didziojiZodzioRaide = char.ToUpper(zodis[i]);
+
+                if (didziojiZodzioRaide == spejamaRaide)
+                {
+
+                    zodzioMasyvas[i] = didziojiZodzioRaide;
+                    atspejo = true;
+                }
+            }
+
+            return atspejo;
+        }
+
+        static bool SpetiZodi(string raidesSpejimas, string zodis, char[] zodzioMasyvas)
+        {
+
+            string zodisDidziosiosRaides = zodis.ToUpper();
+
+            if (raidesSpejimas == zodisDidziosiosRaides)
+            {
+
+                for (var i = 0; i < zodisDidziosiosRaides.Length; i++)
+                {
+                    char zodzioRaide = zodisDidziosiosRaides[i];
+                    zodzioMasyvas[i] = zodzioRaide;
+                }
+
+                return true;
+            }
+
+            return false;
+        }
+
+        static void IsvestiSimboliuMasyva(char[] zodzioMasyvas)
+        {
+            string spejamasZodis = string.Empty;
+
+            for (int i = 0; i < zodzioMasyvas.Length; i++)
+            {
+                spejamasZodis += $"{zodzioMasyvas[i]} ";
+            }
+
+            Console.WriteLine(spejamasZodis);
+        }
+
+        static bool PasikartojantysSpejimai(string spejimas, List<char> spetosRaides, List<string> spetiZodziai)
+        {
+            if (spejimas.Length == 1)
+            {
+                for (int i = 0; i < spetosRaides.Count; i++)
+                {
+                    if (spejimas[0] == spetosRaides[i])
+                    {
+                        Console.WriteLine($"Deja, bet sia raide {spejimas[0]} jau spejote");
+                        return false;
+                    }
+                }
+            }
+            else
+            {
+                for (int i = 0; i < spetiZodziai.Count; i++)
+                {
+                    if (spejimas == spetiZodziai[i])
+                    {
+                        Console.WriteLine($"Deja, bet si zodi {spejimas} jau spejote.");
+                        return false;
+                    }
+                }
+            }
+
+            return true;
+        }
+
+        static bool ArTeisingasSpejimas(string spejimas)
+        {
+            if (spejimas.Length == 1)
+            {
+                if (spejimas[0] >= 60 && spejimas[0] <= 90)
+                {
+                    return true;
+                }
+                else
+                {
+                    Console.WriteLine($"Deja, bet jusu ivestas simbolis {spejimas[0]} nera raide!");
+                    return false;
+                }
+            }
+            else
+            {
+                for (int i = 0; i < spejimas.Length; i++)
+                {
+                    if (!(spejimas[i] >= 60 && spejimas[i] <= 90))
+                    {
+                        Console.WriteLine($"Deja, bet jusu ivestas simboliu junginys {spejimas} nera zodis!");
+                        return false;
+                    }
+                }
+            }
+
+            return true;
+        }
+
+        static void JauBuveSpejimai(string spejimas, List<char> spetosRaides, List<string> spetiZodziai)
+        {
+            if (spejimas.Length == 1)
+            {
+                spetosRaides.Add(spejimas[0]);
+            }
+            else
+            {
+                spetiZodziai.Add(spejimas);
+            }
+        }
+
+        static void IsvestiSpetasRaides(List<char> spetosRaides)
+        {
+            Console.WriteLine();
+            Console.WriteLine("Spetos raides:");
+            foreach (var raide in spetosRaides)
+            {
+                Console.Write($"{raide}, ");
+            }
+
+            Console.WriteLine();
+            Console.WriteLine();
+        }
+
+        static void IsvestiSpetusZodzius(List<string> spetiZodziai)
+        {
+            Console.WriteLine();
+            Console.WriteLine();
+            Console.WriteLine("Speti zodziai:");
+            foreach (var zodis in spetiZodziai)
+            {
+                Console.Write($"{zodis}, ");
+            }
+
+            Console.WriteLine();
+            Console.WriteLine();
+        }
+
+        static bool ZaidejasLaimejo(char[] zodzioMasyvas)
+        {
+            for (int i = 0; i < zodzioMasyvas.Length; i++)
+            {
+                if (zodzioMasyvas[i] == '_')
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        static bool ZaistiDarKarta()
+        {
+            {
+                Console.WriteLine("Ar norite kartoti zaidima? Jei taip, iveskite zodi, TAIP, jei ne, iveskite zodi NE");
+                string zaidejoPasirinkimas = Console.ReadLine().ToUpper();
+
+                while (zaidejoPasirinkimas != "TAIP" && zaidejoPasirinkimas != "NE")
+                {
+                    Console.Clear();
+                    Console.WriteLine("Ar norite kartoti zaidima? Jei taip, iveskite zodi, TAIP, jei ne, iveskite zodi NE");
+                    zaidejoPasirinkimas = Console.ReadLine().ToUpper();
+                }
+
+                if (zaidejoPasirinkimas == "TAIP")
+                {
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+        }
+    }
+}
