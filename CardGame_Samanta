@@ -1,0 +1,263 @@
+using System;
+using System.Collections.Generic;
+
+/* ##### SAVARANKIŠKOS UŽDUOTYS #####
+ 
+** UŽDUOTIS 3 **
+Suprogramuoti kortų kaladę. (52 kortų)
+
+** UŽDUOTIS 4 **
+Suprogramuoti kortų žaidimą. Žaidžia 2 arba 4 žaidėjai. 
+Žaidėjams išdalinamos visos kortos. 
+Gavus kortas paskaičiuojama, kiek kiekvienas surinko taškų ir daugiausiai surinkęs laimi. 
+Taškai skaičiuojami taip (sumuojasi):
+- Nuo 2 iki 10 tiek kiek vertės turi visos kortos.
+- Galvos vertos po 10 taškų.
+- Kiek turi širdžių kortų x10.
+- Kiek turi būgnų kortų x5.
+- Kiek turi lapų kortų x2.
+- Kiek turi kryžių kortų minus x8.
+ */
+
+
+namespace CardGame
+{
+
+    public class Card //kortu klaseje susikuriau dvi properties - tai kortos tasku ir kortos pavadinimo savybes
+    {
+        public int Points { get; set; } 
+
+        public string Name { get; set; }
+    }
+
+    public class Deck
+    {
+        private readonly List<Card> cards = new List<Card>();
+        private readonly Random random = new Random();
+
+        public int CardCount => cards.Count;
+
+        public void AddCard(Card card)
+        {
+            cards.Add(card);
+        }
+
+        public Card TakeCard()
+        {
+            if (cards.Count == 0)
+            {
+                return null;
+            }
+
+            int index = random.Next(0, cards.Count);
+            Card card = cards[index];
+            cards.Remove(card);
+
+            return card;
+        }
+
+        public void Show()
+        {
+            Console.WriteLine($"Showing deck of {cards.Count} cards"); //kortu skaiciaus isvedimas i konsole
+            foreach (Card card in cards)
+            {
+                Console.WriteLine(card.Name);
+            }
+        }
+    }
+
+public class Player
+    {
+        private readonly List<Card> cards = new List<Card>();
+
+        public string Name { get; set; }
+
+        public int Points => CalculatePoints();
+
+        public void AddCard(Card card)
+        {
+            cards.Add(card);
+        }
+
+        private int CalculatePoints()
+        {
+            int sum = 0;
+            foreach (Card card in cards)
+            {
+                sum += card.Points;
+            }
+
+            return sum;
+        }
+    }
+
+    public class CardType
+    {
+        public int PointMultiplier { get; set; } //tasku propertis turint sirdis, kryzius ir kt. 
+
+        public string Name { get; set; } //kortos tipo propertis - sirdys, kryziai ir kt.
+    }
+
+    public static class Program
+    {
+        public static void Main(string[] args)
+        {
+            List<Player> players = CreatePlayers();
+
+            Deck deck = CreateDeck();
+            deck.Show();
+
+            HandoutCards(deck, players);
+
+            Player winner = FindWinner(players);
+            PrintWinner(winner);
+        }
+
+        private static Deck CreateDeck()
+        {
+            CardType[] cardTypes = new CardType[]
+{
+                new CardType
+                {
+                    PointMultiplier = -8, //taskai uz simbolius
+                    Name = "Clubs"
+                },
+                new CardType
+                {
+                    PointMultiplier = 5,
+                    Name = "Diamonds"
+                },
+                new CardType
+                {
+                    PointMultiplier = 10,
+                    Name = "Hearts"
+                },
+                new CardType
+                {
+                    PointMultiplier = 2,
+                    Name = "Spades"
+                }
+};
+
+            string[] specialCardNames = new string[] //specialios kortos - tai visos galvos ir tuzas
+            {
+                "Jack",
+                "Queen",
+                "King",
+                "Ace"
+            };
+
+            Deck deck = new Deck();
+
+            foreach (CardType cardType in cardTypes)
+            {
+                for (int i = 2; i <= 10; i++) //taskai uz kortas su skaiciais
+                {
+                    Card card = new Card
+                    {
+                        Points = i * cardType.PointMultiplier,
+                        Name = $"{i} of {cardType.Name}"
+                    };
+
+                    deck.AddCard(card);
+                }
+
+                foreach (string specialCardName in specialCardNames)
+                {
+                    Card card = new Card
+                    {
+                        Points = 10,
+                        Name = $"{specialCardName} of {cardType.Name}"
+                    };
+
+                    deck.AddCard(card);
+                }
+            }
+
+            return deck;
+        }
+
+        private static List<Player> CreatePlayers()
+        {
+            return new List<Player>
+            {
+                new Player
+                {
+                    Name = "Tomas"
+                },
+                new Player
+                {
+                    Name = "Tadas"
+                },
+                new Player
+                {
+                    Name = "Gugas"
+                },
+                new Player
+                {
+                    Name = "Bilas"
+                }
+            };
+        }
+
+        private static void HandoutCards(Deck deck, List<Player> players)
+        {
+            if (players.Count == 0)
+            {
+                return;
+            }
+
+            while (deck.CardCount > 0)
+            {
+                foreach (Player player in players)
+                {
+                    Card currentCard = deck.TakeCard();
+                    if (currentCard == null)
+                    {
+                        break;
+                    }
+
+                    player.AddCard(currentCard);
+                }
+            }
+        }
+
+        private static Player FindWinner(List<Player> players)
+        {
+            Console.WriteLine();
+            Console.WriteLine("---------BASIC CARD GAME WITH 4 PLAYERS---------");
+            Console.WriteLine();
+
+            Player winner = null;
+
+            foreach (Player player in players)
+            {
+                if (winner == null)
+                {
+                    winner = player;
+                }
+                else if (winner.Points < player.Points)
+                {
+                    winner = player;
+                }
+                Console.WriteLine($"{player.Name} = {player.Points}");
+            }
+
+            return winner;
+        }
+
+        private static void PrintWinner(Player winner)
+        {
+
+            if (winner == null)
+            {
+                Console.WriteLine("Nobody won the game."); //jeigu atsitiktu, kad nebutu nei vieno zaidejo
+            }
+            else
+            {
+                Console.WriteLine();
+                Console.WriteLine($"{winner.Name} is the winner with {winner.Points} points!");
+            }
+        }
+    }
+}
